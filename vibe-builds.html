@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VIBE BUILDS — Venux Studio | Generative AI & Code Prototypes</title>
+
+    <!-- SEO, AEO & Meta Tags -->
+    <meta name="description" content="AI & Vibe Coding projects by Gokul Eashwar. Rapid generative web prototypes, AI audio visualizers, and brand automation tools." />
+    <meta name="keywords" content="Vibe Coding Projects, Generative AI Design, Gokul Eashwar AI Lab, AI Web Prototypes, Creative Tech" />
+    <meta name="author" content="Gokul Eashwar" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://venuxstudio.com/vibe-builds.html" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Vibe Builds — Venux Studio" />
+    <meta property="og:description" content="Coding Projects • AI Workflows • Rapid Interactive Web Prototypes" />
+    <meta property="og:image" content="https://res.cloudinary.com/nnzbikiu/image/upload/v1785316386/venux_studio_2b_zwst46.png" />
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/nnzbikiu/image/upload/v1785316404/ICON_plrvca.png" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Standalone Stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Background Video with 20% Overlay -->
+    <div id="site-bg-container" class="video-bg-container">
+      <video id="site-bg-video" class="video-bg-media" autoplay loop muted playsinline poster="https://res.cloudinary.com/nnzbikiu/image/upload/v1785316410/BG1_i8uujd.jpg">
+        <source src="https://res.cloudinary.com/nnzbikiu/video/upload/v1787066009/bg2_l8jbki.mp4" type="video/mp4" />
+      </video>
+      <div class="video-bg-overlay"></div>
+    </div>
+    <div class="noise-layer"></div>
+
+    <!-- Fixed Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <!-- Logo -->
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+          <img id="header-logo-img" src="https://res.cloudinary.com/nnzbikiu/image/upload/v1785316386/venux_studio_2b_zwst46.png" alt="Venux Studio Logo" style="height: 30px; width: auto; object-fit: contain;" />
+        </a>
+
+        <!-- Center Breadcrumb -->
+        <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-space); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-silver);">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--gold-primary); display: inline-block;"></span>
+          <span style="font-weight: 300;">VENUX STUDIO</span>
+          <span style="color: #444;">•</span>
+          <span style="color: var(--gold-primary); font-weight: 600;">VIBE BUILDS</span>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <a href="https://wa.me/918983799176" class="dynamic-whatsapp-link" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 5px; text-decoration: none; padding: 6px 12px; border-radius: 9999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #ffffff; font-family: var(--font-space); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;">
+            <span style="color: var(--gold-primary);">💬</span> CHAT
+          </a>
+          <a href="contact.html" style="display: flex; align-items: center; gap: 5px; text-decoration: none; padding: 6px 14px; border-radius: 9999px; background: var(--gold-primary); color: #000000; font-family: var(--font-space); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">
+            ✨ HIRE US
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="position: relative; z-index: 10; min-height: 100vh; padding: 110px 20px 80px; max-width: 1150px; margin: 0 auto;">
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--gold-primary); font-family: var(--font-space); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">
+          <span>⚡</span>
+          <span>GENERATIVE AI & CODE PROJECTS</span>
+        </div>
+        <h1 style="font-family: var(--font-syne); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 12px;">
+          VIBE BUILDS
+        </h1>
+        <p style="font-family: var(--font-space); font-size: 13px; color: var(--text-silver); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 300;">
+          Coding Projects • AI Workflows • Rapid Interactive Web Prototypes
+        </p>
+      </div>
+
+      <div id="vibe-builds-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+    </main>
+
+    <!-- ================= CIRCULAR ARC NAVIGATION (DESKTOP) ================= -->
+    <div class="arc-nav-desktop">
+      <div class="arc-nav-wrapper">
+        <div id="arc-nodes-group" class="arc-nodes-group collapsed">
+          <a id="arc-node-home" href="index.html" class="arc-node-item">
+            <span class="arc-node-pill">Home</span>
+            <div class="arc-node-btn">🏠</div>
+          </a>
+          <a id="arc-node-about" href="about.html" class="arc-node-item">
+            <span class="arc-node-pill">About</span>
+            <div class="arc-node-btn">👤</div>
+          </a>
+          <a id="arc-node-portfolio" href="portfolio.html" class="arc-node-item">
+            <span class="arc-node-pill">Portfolio</span>
+            <div class="arc-node-btn">📁</div>
+          </a>
+          <a id="arc-node-vibe-builds" href="vibe-builds.html" class="arc-node-item active">
+            <span class="arc-node-pill">Vibe Builds</span>
+            <div class="arc-node-btn active">⚡</div>
+          </a>
+          <a id="arc-node-contact" href="contact.html" class="arc-node-item">
+            <span class="arc-node-pill">Contact</span>
+            <div class="arc-node-btn">✉️</div>
+          </a>
+        </div>
+
+        <button id="arc-nav-trigger" class="arc-trigger-btn" aria-label="Toggle Navigation">
+          <span style="font-size: 14px; color: #fff;">☰</span>
+          <span id="arc-trigger-text" style="font-family: var(--font-space); font-size: 8px; color: var(--text-silver); letter-spacing: 0.1em;">MENU</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MOBILE & TABLET BOTTOM DOCK ================= -->
+    <div class="mobile-bottom-dock">
+      <div class="mobile-dock-inner">
+        <a href="index.html" class="mobile-dock-btn" data-file="index.html">Home</a>
+        <a href="about.html" class="mobile-dock-btn" data-file="about.html">About</a>
+        <a href="portfolio.html" class="mobile-dock-btn" data-file="portfolio.html">Portfolio</a>
+        <a href="vibe-builds.html" class="mobile-dock-btn active" data-file="vibe-builds.html">Vibe</a>
+        <a href="contact.html" class="mobile-dock-btn" data-file="contact.html">Contact</a>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
