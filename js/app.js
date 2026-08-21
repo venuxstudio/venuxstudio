@@ -18,9 +18,15 @@
     portfolioFilter: 'all',
     portfolioSearch: '',
     orbitRotation: 0,
-    hoveredOrbitId: null,
+    hoveredSlotIndex: null,
     lastFrameTime: performance.now(),
+    // Cinematic Orbit Physics
+    mouse: { x: 0, y: 0, targetX: 0, targetY: 0 },
+    orbitSpeed: 0.10,
+    orbitSlots: [],
+    nextLibraryIndex: 15
   };
+
 
   // Initialize on DOM Ready
   if (document.readyState === 'loading') {
@@ -164,48 +170,79 @@
     }, 5000);
   }
 
-  // 4. ORBIT PHYSICS (HOME PAGE)
+  // 4. CINEMATIC INTERACTIVE 3D ORBIT ENGINE (HOME PAGE)
   function initOrbitShowcase() {
     const container = document.getElementById('orbit-cards-container');
-    if (!container) return;
+    const showcaseWrapper = document.getElementById('orbit-showcase-wrapper');
+    if (!container || !showcaseWrapper) return;
+
+    const VISIBLE_SLOTS = 15;
+    state.orbitSlots = [];
+
+    // Initialize 15 active orbit slots
+    for (let i = 0; i < VISIBLE_SLOTS; i++) {
+      const dataIndex = i % PORTFOLIO.length;
+      state.orbitSlots.push({
+        slotIndex: i,
+        dataIndex: dataIndex,
+        item: PORTFOLIO[dataIndex],
+        swapped: false
+      });
+    }
+    state.nextLibraryIndex = VISIBLE_SLOTS % PORTFOLIO.length;
 
     container.innerHTML = '';
-    PORTFOLIO.forEach(function (item) {
+    state.orbitSlots.forEach(function (slot) {
+      const item = slot.item;
       const card = document.createElement('div');
       card.className = 'orbit-card';
-      card.id = 'orbit-card-' + item.id;
+      card.id = 'orbit-slot-' + slot.slotIndex;
       card.innerHTML =
-        '<div style="position: relative; width: 100%; height: 100%;">' +
-        '<img src="' +
+        '<div style="position: relative; width: 100%; height: 100%; overflow: hidden;">' +
+        '<img id="slot-img-' + slot.slotIndex + '" src="' +
         item.imageUrl +
         '" alt="' +
         item.title +
-        '" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9);" loading="eager" />' +
+        '" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.92);" loading="eager" />' +
         '<div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>' +
         '<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px;">' +
-        '<p style="font-family: var(--font-syne); font-size: 10px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;">' +
+        '<p id="slot-title-' + slot.slotIndex + '" style="font-family: var(--font-syne); font-size: 10px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;">' +
         item.title +
         '</p>' +
-        '<p style="font-family: var(--font-space); font-size: 8px; color: #a3a3a8; font-weight: 300;">' +
+        '<p id="slot-client-' + slot.slotIndex + '" style="font-family: var(--font-space); font-size: 8px; color: #a3a3a8; font-weight: 300;">' +
         item.client +
         '</p>' +
         '</div>' +
         '</div>';
 
       card.addEventListener('mouseenter', function () {
-        state.hoveredOrbitId = item.id;
+        state.hoveredSlotIndex = slot.slotIndex;
       });
 
       card.addEventListener('mouseleave', function () {
-        state.hoveredOrbitId = null;
+        state.hoveredSlotIndex = null;
       });
 
       card.addEventListener('click', function () {
-        openProjectModal(item);
+        openProjectModal(slot.item);
       });
 
       container.appendChild(card);
     });
+
+    // MOUSE PARALLAX & TILT TRACKING (Desktop)
+    window.addEventListener('mousemove', function (e) {
+      state.mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      state.mouse.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    // TOUCH PARALLAX & SWAY (Mobile / Tablet)
+    window.addEventListener('touchmove', function (e) {
+      if (e.touches && e.touches[0]) {
+        state.mouse.targetX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+        state.mouse.targetY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+      }
+    }, { passive: true });
 
     state.lastFrameTime = performance.now();
     requestAnimationFrame(orbitAnimationTick);
@@ -220,48 +257,121 @@
       const isMobile = width < 640;
       const isTablet = width >= 640 && width < 1024;
 
-      const rx = isMobile ? width * 0.40 : isTablet ? width * 0.36 : Math.min(width * 0.34, 460);
-      const ry = isMobile ? Math.max(height * 0.30, 160) : isTablet ? Math.max(height * 0.28, 200) : Math.min(height * 0.26, 230);
-
-      const centerX = width / 2;
-      const centerY = height / 2;
-
       const rawDelta = (now - state.lastFrameTime) / 1000;
       const delta = Math.min(Math.max(rawDelta, 0), 0.05);
       state.lastFrameTime = now;
 
-      const speed = state.hoveredOrbitId ? 0.035 : 0.11;
-      state.orbitRotation = (state.orbitRotation + speed * delta) % (Math.PI * 2);
+      // Spring Interpolation (LERP) for Mouse & Tilt
+      state.mouse.x += (state.mouse.targetX - state.mouse.x) * 0.06;
+      state.mouse.y += (state.mouse.targetY - state.mouse.y) * 0.06;
 
-      const total = PORTFOLIO.length;
+      // Cinematic speed cycles (Harmonic acceleration surge & graceful glide)
+      const surgeWave = Math.sin(now * 0.00045);
+      const surgeBonus = surgeWave > 0.35 ? (surgeWave - 0.35) * 0.18 : 0;
+      const baseTargetSpeed = 0.095 + surgeBonus;
+      const desiredSpeed = state.hoveredSlotIndex !== null ? 0.025 : baseTargetSpeed;
+      state.orbitSpeed += (desiredSpeed - state.orbitSpeed) * 0.08;
+
+      state.orbitRotation = (state.orbitRotation + state.orbitSpeed * delta) % (Math.PI * 2);
+
+      // Dynamic 3D Orbit Center & Parallax Tilt
+      const orbitOffsetY = state.mouse.y * (isMobile ? 32 : 65); // Orbit rises and falls with mouse!
+      const orbitOffsetX = state.mouse.x * (isMobile ? 18 : 40); // Subtle horizontal sway
+      const orbitTiltPitch = state.mouse.y * (isMobile ? 14 : 24); // 3D Pitch tilt angle
+      const orbitTiltYaw = state.mouse.x * (isMobile ? 12 : 20);   // 3D Yaw tilt angle
+
+      const centerX = width / 2 + orbitOffsetX;
+      const centerY = height / 2 + orbitOffsetY;
+
+      // Organic radial breathing wave
+      const breathRadius = Math.sin(now * 0.001) * 12;
+      const rx = (isMobile ? width * 0.40 : isTablet ? width * 0.36 : Math.min(width * 0.34, 460)) + breathRadius;
+      const ry = (isMobile ? Math.max(height * 0.30, 160) : isTablet ? Math.max(height * 0.28, 200) : Math.min(height * 0.26, 230)) + breathRadius * 0.5;
+
+      const totalSlots = state.orbitSlots.length || 15;
       const cardWidth = isMobile ? 120 : isTablet ? 150 : 175;
       const cardHeight = isMobile ? 80 : isTablet ? 100 : 115;
 
-      PORTFOLIO.forEach(function (item, index) {
-        const card = document.getElementById('orbit-card-' + item.id);
+      state.orbitSlots.forEach(function (slot) {
+        const card = document.getElementById('orbit-slot-' + slot.slotIndex);
         if (!card) return;
 
-        const angle = state.orbitRotation + (index * 2 * Math.PI) / total;
-        const x = centerX + rx * Math.cos(angle);
-        const y = centerY + ry * Math.sin(angle);
-        const depth = Math.sin(angle);
-        const normalizedDepth = (depth + 1) / 2; // 0 (back) to 1 (front)
-        const depthCurve = Math.pow(normalizedDepth, 1.15); // Progressive front expansion
+        const angle = state.orbitRotation + (slot.slotIndex * 2 * Math.PI) / totalSlots;
 
-        // When in back: normal size (~0.72 desktop / ~0.58 mobile)
-        // When in front: noticeably larger (~1.42 desktop / ~1.12 mobile)
+        // Individual harmonic floating undulation
+        const floatWave = Math.sin(now * 0.002 + slot.slotIndex * 0.75) * (isMobile ? 8 : 16);
+        const lateralDrift = Math.cos(now * 0.0015 + slot.slotIndex * 0.55) * 6;
+
+        const x = centerX + rx * Math.cos(angle) + lateralDrift;
+        const y = centerY + ry * Math.sin(angle) + floatWave;
+        const depth = Math.sin(angle); // -1 (back) to +1 (front)
+        const normalizedDepth = (depth + 1) / 2; // 0 (back) to 1 (front)
+        const depthCurve = Math.pow(normalizedDepth, 1.18);
+
+        // CONTINUOUS LIBRARY REPLACEMENT (When card reaches far back: depth < -0.75)
+        if (depth < -0.75 && !slot.swapped && PORTFOLIO.length > totalSlots) {
+          slot.swapped = true;
+          const nextItem = PORTFOLIO[state.nextLibraryIndex];
+          state.nextLibraryIndex = (state.nextLibraryIndex + 1) % PORTFOLIO.length;
+
+          slot.item = nextItem;
+          const imgEl = document.getElementById('slot-img-' + slot.slotIndex);
+          const titleEl = document.getElementById('slot-title-' + slot.slotIndex);
+          const clientEl = document.getElementById('slot-client-' + slot.slotIndex);
+
+          if (imgEl && imgEl.src !== nextItem.imageUrl) {
+            imgEl.style.opacity = '0.2';
+            setTimeout(function () {
+              imgEl.src = nextItem.imageUrl;
+              if (titleEl) titleEl.innerText = nextItem.title;
+              if (clientEl) clientEl.innerText = nextItem.client;
+              imgEl.style.opacity = '1';
+            }, 250);
+          }
+        } else if (depth > 0) {
+          slot.swapped = false;
+        }
+
+        // Perspective 3D Yaw, Pitch & Roll
+        const tangentYaw = (-Math.cos(angle) * 32) + orbitTiltYaw * 0.45;
+        const pitchX = (-depth * 14) + orbitTiltPitch;
+        const rollZ = Math.cos(angle) * 3.5;
+
+        // Front cards noticeably larger, back cards compact
         const baseScale = isMobile ? 0.58 + 0.54 * depthCurve : 0.72 + 0.70 * depthCurve;
-        const isHovered = state.hoveredOrbitId === item.id;
-        const scale = isHovered ? baseScale * 1.20 : baseScale;
-        const zIndex = isHovered ? 60 : Math.round(10 + 35 * depth);
+        const isHovered = state.hoveredSlotIndex === slot.slotIndex;
+        const scale = isHovered ? baseScale * 1.22 : baseScale;
+        const zIndex = isHovered ? 90 : Math.round(10 + 45 * depth);
 
         card.style.width = cardWidth + 'px';
         card.style.height = cardHeight + 'px';
         card.style.left = x + 'px';
         card.style.top = y + 'px';
         card.style.zIndex = zIndex;
-        card.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
-        card.style.opacity = state.hoveredOrbitId && !isHovered ? '0.35' : '0.95';
+        card.style.transform =
+          'translate(-50%, -50%) scale(' +
+          scale.toFixed(3) +
+          ') rotateX(' +
+          pitchX.toFixed(2) +
+          'deg) rotateY(' +
+          tangentYaw.toFixed(2) +
+          'deg) rotateZ(' +
+          rollZ.toFixed(2) +
+          'deg)';
+
+        // Atmospheric lighting and depth focus
+        if (isHovered) {
+          card.style.opacity = '1';
+          card.style.filter = 'brightness(1.15) drop-shadow(0 0 25px rgba(245,158,11,0.6))';
+        } else if (state.hoveredSlotIndex !== null) {
+          card.style.opacity = '0.25';
+          card.style.filter = 'brightness(0.5) blur(2px)';
+        } else {
+          const brightness = 0.65 + 0.45 * depthCurve;
+          const opacity = 0.75 + 0.15 * depthCurve;
+          card.style.opacity = opacity.toFixed(2);
+          card.style.filter = 'brightness(' + brightness.toFixed(2) + ')';
+        }
       });
     }
 
