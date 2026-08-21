@@ -139,27 +139,40 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   user-select: none;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  touch-action: pan-y;
 }
 
 .orbit-card {
   position: absolute;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
   cursor: pointer;
-  transition: transform 0.25s ease-out, border-color 0.25s ease, opacity 0.25s ease;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(12, 13, 18, 0.82);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  background: rgba(12, 13, 18, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  will-change: transform, opacity;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.orbit-card img {
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease;
 }
 
 .orbit-card:hover {
   border-color: var(--gold-primary) !important;
-  box-shadow: 0 0 30px var(--gold-glow);
+  box-shadow: 0 0 35px var(--gold-glow), 0 20px 50px rgba(0, 0, 0, 0.9) !important;
   z-index: 100 !important;
+}
+
+.orbit-card:hover img {
+  transform: scale(1.04);
 }
 
 /* Glitch Animation */
