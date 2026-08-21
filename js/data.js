@@ -17,12 +17,12 @@ window.VENUX_CONFIG = {
   bgImageUrl: "https://res.cloudinary.com/nnzbikiu/image/upload/v1785316410/BG1_i8uujd.jpg",
   
   // DESIGNER PHOTO
-  designerPhotoUrl: "assets/images/profile.jpg?q=80&w=1200&auto=format&fit=crop",
+  designerPhotoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
   
   // LINKS & CONTACT
-  pdfPortfolioUrl: "https://drive.google.com/file/d/1tHbEPQrKnWGHu5z4K-dpq1kk4KrGbbqX/view?usp=sharing",
+  pdfPortfolioUrl: "https://drive.google.com/file/d/1example-venux-studio-portfolio/view?usp=sharing",
   whatsappUrl: "https://wa.me/918983799176",
-  telegramUrl: "https://t.me/venuxstudio",
+  telegramUrl: "https://t.me/gokuleashwar",
   email: "venuxstudiox@gmail.com",
   contactFormRecipient: "venuxstudiox@gmail.com", // Project briefs submitted from the website will be delivered to this Gmail
   phone: "+91 89837 99176 / +91 70207 85779",
