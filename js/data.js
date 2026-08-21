@@ -17,12 +17,12 @@ window.VENUX_CONFIG = {
   bgImageUrl: "https://res.cloudinary.com/nnzbikiu/image/upload/v1785316410/BG1_i8uujd.jpg",
   
   // DESIGNER PHOTO
-  designerPhotoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+  designerPhotoUrl: "assets/images/profile.jpg?q=80&w=1200&auto=format&fit=crop",
   
   // LINKS & CONTACT
-  pdfPortfolioUrl: "https://drive.google.com/file/d/1example-venux-studio-portfolio/view?usp=sharing",
+  pdfPortfolioUrl: "https://drive.google.com/file/d/1tHbEPQrKnWGHu5z4K-dpq1kk4KrGbbqX/view?usp=sharing",
   whatsappUrl: "https://wa.me/918983799176",
-  telegramUrl: "https://t.me/gokuleashwar",
+  telegramUrl: "https://t.me/venuxstudio",
   email: "venuxstudiox@gmail.com",
   contactFormRecipient: "venuxstudiox@gmail.com", // Project briefs submitted from the website will be delivered to this Gmail
   phone: "+91 89837 99176 / +91 70207 85779",
@@ -212,6 +212,160 @@ window.VENUX_PORTFOLIO = [
     tags: ["Developer", "Realtor", "Home builder", "Polar regions"],
     deliverables: ["Dial Monogram Vector", "Brand Book", "Web Design"],
     toolsUsed: ["Illustrator", "CorelDRAW", "Figma"]
+  },
+  {
+    id: "orbit-17",
+    title: "Noir Botanica — Essential Oils",
+    category: "Apparel & Packaging",
+    imageUrl: "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?q=80&w=1200&auto=format&fit=crop",
+    client: "Noir Botanica Paris",
+    year: "2023",
+    description: "Matte black glass dropper bottle with embossed gold foil typography.",
+    tags: ["Packaging Design", "Cosmetics", "Gold Foil"],
+    deliverables: ["Dropper Bottle Vector", "Box Packaging Die-Cut", "3D Render"]
+  },
+  {
+    id: "orbit-18",
+    title: "Chrono Syndicate — Web3 Membership Pass",
+    category: "Web UI & NFT",
+    imageUrl: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
+    client: "Chrono DAO",
+    year: "2024",
+    description: "Holographic chrome membership cards with procedural particle shaders.",
+    tags: ["Web3 Pass", "3D Hologram", "Interactive Web"],
+    deliverables: ["3D Card Animation", "Metadata Schema", "Mint Page UI"]
+  },
+  {
+    id: "orbit-19",
+    title: "Atelier Vesper — Luxury Editorial Magazine",
+    category: "Print Media",
+    imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop",
+    client: "Vesper Publishing Zurich",
+    year: "2024",
+    description: "High-contrast Swiss typography grid layout, duplex metallic spot ink.",
+    tags: ["Editorial", "Magazine Design", "Swiss Grid"],
+    deliverables: ["Editorial Layout System", "Cover Art Vector", "Print Specification"]
+  },
+  {
+    id: "orbit-20",
+    title: "Hyperion Pulse — Ambient Audio Synthesizer",
+    category: "Digital Art",
+    imageUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1200&auto=format&fit=crop",
+    client: "Hyperion Sound Lab",
+    year: "2025",
+    description: "Generative audio-reactive waveform branding and interactive stage visualizers.",
+    tags: ["Generative Art", "Audio Visualizer", "Vibe Code"],
+    deliverables: ["Audio Reactive Canvas", "Stage Visuals", "UI Design"]
+  },
+  {
+    id: "orbit-21",
+    title: "Solace Coffee — Single Origin Packaging",
+    category: "Apparel & Packaging",
+    imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=1200&auto=format&fit=crop",
+    client: "Solace Roasters Kyoto",
+    year: "2023",
+    description: "Wabi-sabi minimalist coffee pouch with textured Japanese washi paper label.",
+    tags: ["Coffee Branding", "Packaging", "Minimalism"],
+    deliverables: ["Pouch Print Die-Cut", "Custom Calligraphy", "Brand Book"]
+  },
+  {
+    id: "orbit-22",
+    title: "Vortex Kinetics — EV Supercar Badge",
+    category: "Logo & Brand System",
+    imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+    client: "Vortex Automotive Munich",
+    year: "2024",
+    description: "Aerodynamic sculpted chrome emblem with speed lines and razor-sharp wordmark.",
+    tags: ["Automotive Logo", "Chrome Badge", "Industrial"],
+    deliverables: ["3D Emblem CAD Vector", "Badge Stamping Spec", "Identity Guide"]
+  },
+  {
+    id: "orbit-23",
+    title: "Komorebi — Silk Scarf Collection",
+    category: "Apparel & Packaging",
+    imageUrl: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1200&auto=format&fit=crop",
+    client: "Komorebi Silk Kyoto",
+    year: "2024",
+    description: "Intricate botanical screen prints and gold leaf foil gift box wrapping.",
+    tags: ["Apparel Pattern", "Silk Print", "Luxury Packaging"],
+    deliverables: ["Repeat Pattern Vector", "Gift Box Art", "Lookbook"]
+  },
+  {
+    id: "orbit-24",
+    title: "Prism Protocol — DeFi Dashboard UI",
+    category: "Web UI & NFT",
+    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+    client: "Prism Financial",
+    year: "2024",
+    description: "Glassmorphic crypto trading terminal with glowing neon telemetry gauges.",
+    tags: ["UI/UX Design", "DeFi Terminal", "Dark Mode UI"],
+    deliverables: ["Complete UI Design System", "Figma Components", "Interactive Prototype"]
+  },
+  {
+    id: "orbit-25",
+    title: "Cinephile Vault — Film Festival Identity",
+    category: "Print Media",
+    imageUrl: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop",
+    client: "International Independent Cinema",
+    year: "2023",
+    description: "Bold experimental movie festival poster series with risograph halftone effects.",
+    tags: ["Poster Art", "Risograph", "Film Festival"],
+    deliverables: ["B1 Poster Series", "Event Booklet", "Street Banners"]
+  },
+  {
+    id: "orbit-26",
+    title: "Aura Neural — AI Prompt Architect",
+    category: "Digital Art",
+    imageUrl: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1200&auto=format&fit=crop",
+    client: "Aura Intelligence",
+    year: "2026",
+    description: "Hyper-dimensional fluid iridescent artwork and generative typography.",
+    tags: ["AI Art", "Generative Graphics", "3D Shaders"],
+    deliverables: ["Generative Art Library", "4K Canvas Loops", "Album Art"]
+  },
+  {
+    id: "orbit-27",
+    title: "Helios Botanical — Organic Gin Bottle",
+    category: "Apparel & Packaging",
+    imageUrl: "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200&auto=format&fit=crop",
+    client: "Helios Distillers London",
+    year: "2023",
+    description: "Sunburst gold foil crest and bespoke botanical illustrations on dark amber glass.",
+    tags: ["Spirits Packaging", "Botanical Art", "Gold Foil"],
+    deliverables: ["Bottle Label Art", "Crest Vector", "Wood Box Laser Engrave Spec"]
+  },
+  {
+    id: "orbit-28",
+    title: "Monolith Records — Vinyl Packaging & Logo",
+    category: "Logo & Brand System",
+    imageUrl: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=1200&auto=format&fit=crop",
+    client: "Monolith Electronic Music",
+    year: "2024",
+    description: "Minimalist brutalist square logomark with embossed heavy gatefold vinyl sleeve.",
+    tags: ["Record Label", "Brutalism", "Vinyl Sleeve"],
+    deliverables: ["Record Label Logo", "Gatefold Sleeve Design", "Record Center Labels"]
+  },
+  {
+    id: "orbit-29",
+    title: "Valkyrie Heavy — Tactical Streetwear",
+    category: "Apparel & Packaging",
+    imageUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200&auto=format&fit=crop",
+    client: "Valkyrie Division",
+    year: "2024",
+    description: "Cyber-industrial technical wear garments, rubberized patch badges, reflective screen ink.",
+    tags: ["Techwear", "Garment Graphics", "Rubber Patch"],
+    deliverables: ["Tech Pack Specifications", "Vector Badge Art", "Hangtags"]
+  },
+  {
+    id: "orbit-30",
+    title: "Zenith Studio — Architectural Monograph",
+    category: "Print Media",
+    imageUrl: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
+    client: "Zenith Architects Milan",
+    year: "2024",
+    description: "Hardcover linen-wrapped architecture monograph with blind debossed typography.",
+    tags: ["Architecture Book", "Linen Hardcover", "Deboss"],
+    deliverables: ["Hardcover Book Layout", "Slipcase Vector Art", "Custom Grid"]
   }
 ];
 
