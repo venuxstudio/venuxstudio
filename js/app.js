@@ -20,13 +20,14 @@
     orbitRotation: 0,
     hoveredSlotIndex: null,
     lastFrameTime: performance.now(),
-    // Cinematic Orbit Physics
-    mouse: { x: 0, y: 0, targetX: 0, targetY: 0 },
+    // Cinematic Warp-Shuffle & Slow-Display Engine
     orbitSpeed: 0.10,
     orbitSlots: [],
-    nextLibraryIndex: 15
+    cycleTimer: 0,
+    isWarping: false,
+    hasSwappedInCurrentWarp: false,
+    warpBlur: 0
   };
-
 
   // Initialize on DOM Ready
   if (document.readyState === 'loading') {
@@ -54,7 +55,7 @@
     
     if (videoEl && BRAND.bgVideoUrl) {
       videoEl.src = BRAND.bgVideoUrl;
-      const speed = typeof BRAND.bgVideoPlaybackSpeed === 'number' ? BRAND.bgVideoPlaybackSpeed : 0.5;
+      const speed = typeof BRAND.bgVideoPlaybackSpeed === 'number' ? BRAND.bgVideoPlaybackSpeed : 0.6;
       videoEl.playbackRate = speed;
       videoEl.addEventListener('loadedmetadata', function () {
         videoEl.playbackRate = speed;
@@ -170,7 +171,7 @@
     }, 5000);
   }
 
-  // 4. CINEMATIC INTERACTIVE 3D ORBIT ENGINE (HOME PAGE)
+  // 4. CINEMATIC WARP-SHUFFLE & SLOW-DISPLAY ORBIT ENGINE (HOME PAGE)
   function initOrbitShowcase() {
     const container = document.getElementById('orbit-cards-container');
     const showcaseWrapper = document.getElementById('orbit-showcase-wrapper');
@@ -185,11 +186,9 @@
       state.orbitSlots.push({
         slotIndex: i,
         dataIndex: dataIndex,
-        item: PORTFOLIO[dataIndex],
-        swapped: false
+        item: PORTFOLIO[dataIndex]
       });
     }
-    state.nextLibraryIndex = VISIBLE_SLOTS % PORTFOLIO.length;
 
     container.innerHTML = '';
     state.orbitSlots.forEach(function (slot) {
@@ -203,8 +202,8 @@
         item.imageUrl +
         '" alt="' +
         item.title +
-        '" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.92);" loading="eager" />' +
-        '<div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);"></div>' +
+        '" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.95); transition: opacity 0.35s ease, filter 0.35s ease;" loading="eager" />' +
+        '<div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);"></div>' +
         '<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px;">' +
         '<p id="slot-title-' + slot.slotIndex + '" style="font-family: var(--font-syne); font-size: 10px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;">' +
         item.title +
@@ -230,22 +229,42 @@
       container.appendChild(card);
     });
 
-    // MOUSE PARALLAX & TILT TRACKING (Desktop)
-    window.addEventListener('mousemove', function (e) {
-      state.mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
-      state.mouse.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    // TOUCH PARALLAX & SWAY (Mobile / Tablet)
-    window.addEventListener('touchmove', function (e) {
-      if (e.touches && e.touches[0]) {
-        state.mouse.targetX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
-        state.mouse.targetY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
-      }
-    }, { passive: true });
-
+    state.cycleTimer = 0;
     state.lastFrameTime = performance.now();
     requestAnimationFrame(orbitAnimationTick);
+  }
+
+  // Shuffle 15 randomized distinct items from the 30-item library
+  function shuffleOrbitArtworks() {
+    if (!PORTFOLIO || PORTFOLIO.length === 0) return;
+    
+    // Create randomized copy of full 30 items
+    const pool = PORTFOLIO.slice();
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = pool[i];
+      pool[i] = pool[j];
+      pool[j] = temp;
+    }
+
+    state.orbitSlots.forEach(function (slot, idx) {
+      const newItem = pool[idx % pool.length];
+      slot.item = newItem;
+
+      const imgEl = document.getElementById('slot-img-' + slot.slotIndex);
+      const titleEl = document.getElementById('slot-title-' + slot.slotIndex);
+      const clientEl = document.getElementById('slot-client-' + slot.slotIndex);
+
+      if (imgEl && imgEl.src !== newItem.imageUrl) {
+        imgEl.style.opacity = '0.2';
+        setTimeout(function () {
+          imgEl.src = newItem.imageUrl;
+          if (titleEl) titleEl.innerText = newItem.title;
+          if (clientEl) clientEl.innerText = newItem.client;
+          imgEl.style.opacity = '1';
+        }, 180);
+      }
+    });
   }
 
   function orbitAnimationTick(now) {
@@ -261,27 +280,66 @@
       const delta = Math.min(Math.max(rawDelta, 0), 0.05);
       state.lastFrameTime = now;
 
-      // Spring Interpolation (LERP) for Mouse & Tilt
-      state.mouse.x += (state.mouse.targetX - state.mouse.x) * 0.06;
-      state.mouse.y += (state.mouse.targetY - state.mouse.y) * 0.06;
+      // ====================================================================
+      // TIMELINE CYCLES: 7.5s DISPLAY (SLOW) -> 2.0s WARP SHUFFLE (FAST)
+      // ====================================================================
+      const DISPLAY_DURATION = 7500; // 7.5 seconds of slow, clear viewing
+      const WARP_DURATION = 2000;    // 2.0 seconds of rapid speed-up & shuffle
+      const TOTAL_CYCLE = DISPLAY_DURATION + WARP_DURATION;
 
-      // Cinematic speed cycles (Harmonic acceleration surge & graceful glide)
-      const surgeWave = Math.sin(now * 0.00045);
-      const surgeBonus = surgeWave > 0.35 ? (surgeWave - 0.35) * 0.18 : 0;
-      const baseTargetSpeed = 0.095 + surgeBonus;
-      const desiredSpeed = state.hoveredSlotIndex !== null ? 0.025 : baseTargetSpeed;
-      state.orbitSpeed += (desiredSpeed - state.orbitSpeed) * 0.08;
+      state.cycleTimer = (state.cycleTimer + delta * 1000) % TOTAL_CYCLE;
 
+      let targetSpeed = 0.10;
+      let warpFactor = 0; // 0 (slow display) to 1 (peak warp)
+      let motionBlur = 0;
+      let turbX = 0;
+      let turbY = 0;
+
+      if (state.cycleTimer >= DISPLAY_DURATION) {
+        // --- WARP PHASE ---
+        state.isWarping = true;
+        const warpProgress = (state.cycleTimer - DISPLAY_DURATION) / WARP_DURATION; // 0 to 1
+        
+        // Bell-curve ease (rises fast to peak, then swiftly decelerates)
+        warpFactor = Math.sin(warpProgress * Math.PI);
+        
+        // High speed peak during warp (~2.6 rad/sec)
+        targetSpeed = 0.10 + 2.50 * Math.pow(warpFactor, 1.25);
+        motionBlur = Math.pow(warpFactor, 1.2) * 5.5; // up to 5.5px motion streak
+
+        // Surreal erratic harmonic displacement during warp
+        turbY = Math.sin(now * 0.016) * (20 * warpFactor) + Math.cos(now * 0.009) * (10 * warpFactor);
+        turbX = Math.cos(now * 0.014) * (14 * warpFactor);
+
+        // Mid-warp shuffle trigger
+        if (warpProgress >= 0.45 && !state.hasSwappedInCurrentWarp) {
+          state.hasSwappedInCurrentWarp = true;
+          shuffleOrbitArtworks();
+        }
+      } else {
+        // --- SLOW DISPLAY PHASE ---
+        state.isWarping = false;
+        state.hasSwappedInCurrentWarp = false;
+        warpFactor = 0;
+        motionBlur = 0;
+        turbX = 0;
+        turbY = 0;
+
+        // Hover pause/slowdown during display phase
+        if (state.hoveredSlotIndex !== null) {
+          targetSpeed = 0.02;
+        } else {
+          targetSpeed = 0.10;
+        }
+      }
+
+      // Smooth lerp speed
+      state.orbitSpeed += (targetSpeed - state.orbitSpeed) * (state.isWarping ? 0.18 : 0.08);
       state.orbitRotation = (state.orbitRotation + state.orbitSpeed * delta) % (Math.PI * 2);
 
-      // Dynamic 3D Orbit Center & Parallax Tilt
-      const orbitOffsetY = state.mouse.y * (isMobile ? 32 : 65); // Orbit rises and falls with mouse!
-      const orbitOffsetX = state.mouse.x * (isMobile ? 18 : 40); // Subtle horizontal sway
-      const orbitTiltPitch = state.mouse.y * (isMobile ? 14 : 24); // 3D Pitch tilt angle
-      const orbitTiltYaw = state.mouse.x * (isMobile ? 12 : 20);   // 3D Yaw tilt angle
-
-      const centerX = width / 2 + orbitOffsetX;
-      const centerY = height / 2 + orbitOffsetY;
+      // Center with warp turbulence
+      const centerX = width / 2 + turbX;
+      const centerY = height / 2 + turbY;
 
       // Organic radial breathing wave
       const breathRadius = Math.sin(now * 0.001) * 12;
@@ -298,7 +356,7 @@
 
         const angle = state.orbitRotation + (slot.slotIndex * 2 * Math.PI) / totalSlots;
 
-        // Individual harmonic floating undulation
+        // Individual Harmonic Floating Ribbon (Organic sine wave per card)
         const floatWave = Math.sin(now * 0.002 + slot.slotIndex * 0.75) * (isMobile ? 8 : 16);
         const lateralDrift = Math.cos(now * 0.0015 + slot.slotIndex * 0.55) * 6;
 
@@ -308,40 +366,16 @@
         const normalizedDepth = (depth + 1) / 2; // 0 (back) to 1 (front)
         const depthCurve = Math.pow(normalizedDepth, 1.18);
 
-        // CONTINUOUS LIBRARY REPLACEMENT (When card reaches far back: depth < -0.75)
-        if (depth < -0.75 && !slot.swapped && PORTFOLIO.length > totalSlots) {
-          slot.swapped = true;
-          const nextItem = PORTFOLIO[state.nextLibraryIndex];
-          state.nextLibraryIndex = (state.nextLibraryIndex + 1) % PORTFOLIO.length;
-
-          slot.item = nextItem;
-          const imgEl = document.getElementById('slot-img-' + slot.slotIndex);
-          const titleEl = document.getElementById('slot-title-' + slot.slotIndex);
-          const clientEl = document.getElementById('slot-client-' + slot.slotIndex);
-
-          if (imgEl && imgEl.src !== nextItem.imageUrl) {
-            imgEl.style.opacity = '0.2';
-            setTimeout(function () {
-              imgEl.src = nextItem.imageUrl;
-              if (titleEl) titleEl.innerText = nextItem.title;
-              if (clientEl) clientEl.innerText = nextItem.client;
-              imgEl.style.opacity = '1';
-            }, 250);
-          }
-        } else if (depth > 0) {
-          slot.swapped = false;
-        }
-
         // Perspective 3D Yaw, Pitch & Roll
-        const tangentYaw = (-Math.cos(angle) * 32) + orbitTiltYaw * 0.45;
-        const pitchX = (-depth * 14) + orbitTiltPitch;
+        const tangentYaw = -Math.cos(angle) * 30;
+        const pitchX = -depth * 14;
         const rollZ = Math.cos(angle) * 3.5;
 
-        // Front cards noticeably larger, back cards compact
-        const baseScale = isMobile ? 0.58 + 0.54 * depthCurve : 0.72 + 0.70 * depthCurve;
-        const isHovered = state.hoveredSlotIndex === slot.slotIndex;
+        // Front cards enlarged, back cards compact
+        const baseScale = isMobile ? 0.60 + 0.52 * depthCurve : 0.72 + 0.70 * depthCurve;
+        const isHovered = state.hoveredSlotIndex === slot.slotIndex && !state.isWarping;
         const scale = isHovered ? baseScale * 1.22 : baseScale;
-        const zIndex = isHovered ? 90 : Math.round(10 + 45 * depth);
+        const zIndex = isHovered ? 99 : Math.round(10 + 45 * depth);
 
         card.style.width = cardWidth + 'px';
         card.style.height = cardHeight + 'px';
@@ -359,16 +393,23 @@
           rollZ.toFixed(2) +
           'deg)';
 
-        // Atmospheric lighting and depth focus
-        if (isHovered) {
+        // Depth Opacity & Motion Blur Filters
+        if (state.isWarping && motionBlur > 0.3) {
+          // Motion blur streak during warp
+          card.style.opacity = (0.75 + 0.25 * depthCurve).toFixed(2);
+          card.style.filter = 'blur(' + motionBlur.toFixed(1) + 'px) brightness(' + (1.0 + warpFactor * 0.35).toFixed(2) + ')';
+        } else if (isHovered) {
+          // Selected hover state
           card.style.opacity = '1';
           card.style.filter = 'brightness(1.15) drop-shadow(0 0 25px rgba(245,158,11,0.6))';
-        } else if (state.hoveredSlotIndex !== null) {
-          card.style.opacity = '0.25';
-          card.style.filter = 'brightness(0.5) blur(2px)';
+        } else if (state.hoveredSlotIndex !== null && !state.isWarping) {
+          // Dim other cards when one is inspected
+          card.style.opacity = '0.35';
+          card.style.filter = 'brightness(0.6) blur(1px)';
         } else {
-          const brightness = 0.65 + 0.45 * depthCurve;
-          const opacity = 0.75 + 0.15 * depthCurve;
+          // Crisp Slow-Display Mode (Enhanced back card visibility: 70% back, 100% front)
+          const opacity = 0.70 + 0.30 * depthCurve;
+          const brightness = 0.75 + 0.30 * depthCurve;
           card.style.opacity = opacity.toFixed(2);
           card.style.filter = 'brightness(' + brightness.toFixed(2) + ')';
         }
