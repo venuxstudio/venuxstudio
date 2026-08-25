@@ -471,117 +471,384 @@
     }
   }
 
-  // 6. PORTFOLIO PAGE 5-SECTION GALLERY & FILTERS
+  // 6. PORTFOLIO PAGE 3D STEPPED COVERFLOW ENGINE & CATEGORY SYSTEM
   function initPortfolioGrid() {
-    const sectionsRoot = document.getElementById('portfolio-sections-root');
-    if (!sectionsRoot) return;
+    const stageContainer = document.getElementById('portfolio-stage-container');
+    const cardsWrap = document.getElementById('portfolio-cards-wrap');
+    if (!stageContainer || !cardsWrap) return;
 
-    renderAllPortfolioSections();
+    let currentCategory = 'logo-brand';
+    let currentItems = (PORTFOLIO_SECTIONS['logo-brand'] && PORTFOLIO_SECTIONS['logo-brand'].items) ? PORTFOLIO_SECTIONS['logo-brand'].items : PORTFOLIO;
+    let currentIndex = 0;
+    let autoSlideInterval = null;
+    let isHovering = false;
+    let breathingPhase = 0;
+    let animFrameId = null;
 
-    // Filter Buttons (Smooth scroll / active highlight)
-    document.querySelectorAll('.portfolio-filter-btn').forEach(function (btn) {
+    // Subtitles dictionary
+    const categoryCaptions = {
+      'logo-brand': '16 ICONIC BRAND MARKS • VECTORS & VISUAL IDENTITIES',
+      'apparel-packaging': '12 LUXURY BOX SETS • STREETWEAR SPECS & COSMETICS',
+      'web-ui-nft': '8 DIGITAL ECOSYSTEMS • WEB3 SYNERGIES & DARK INTERFACES',
+      'print-media': '12 EDITORIAL SPREADS • SILK SCREENS & POSTERS',
+      'digital-art': '12 GENERATIVE AI COMPOSITIONS • 3D RENDERS & SHADERS',
+      'extended-pdf': 'OFFICIAL STUDIO ARCHIVE • COMPLETE CLIENT DECKS & MANUALS'
+    };
+
+    const categoryBadges = {
+      'logo-brand': 'LOGO & BRAND SYSTEM',
+      'apparel-packaging': 'APPAREL & PACKAGING',
+      'web-ui-nft': 'WEB UI & NFT',
+      'print-media': 'PRINT MEDIA',
+      'digital-art': 'DIGITAL ART',
+      'extended-pdf': 'EXTENDED PDF ARCHIVE'
+    };
+
+    // Initialize Category Filters
+    const filterButtons = document.querySelectorAll('.portfolio-filter-item');
+    filterButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        const target = btn.getAttribute('data-target');
+        const cat = btn.getAttribute('data-cat');
+        if (!cat) return;
 
-        document.querySelectorAll('.portfolio-filter-btn').forEach(function (b) {
-          b.style.background = 'rgba(255, 255, 255, 0.05)';
-          b.style.color = 'var(--text-silver)';
-          b.style.fontWeight = '400';
-          b.style.border = '1px solid rgba(255, 255, 255, 0.1)';
-        });
+        filterButtons.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
 
-        btn.style.background = 'var(--gold-primary)';
-        btn.style.color = '#000000';
-        btn.style.fontWeight = '700';
-        btn.style.border = 'none';
-
-        if (target === 'all') {
-          // Show all sections and scroll to root
-          document.querySelectorAll('.gallery-section-block, .section-divider').forEach(function (el) {
-            el.style.display = '';
-          });
-          sectionsRoot.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          // Scroll directly to target section
-          const targetSection = document.getElementById('section-' + target);
-          if (targetSection) {
-            targetSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
+        switchCategory(cat);
       });
     });
 
-    // Real-time Search Input
-    const searchInput = document.getElementById('portfolio-gallery-search');
-    if (searchInput) {
-      searchInput.addEventListener('input', function (e) {
-        state.portfolioSearch = e.target.value.toLowerCase().trim();
-        filterAllPortfolioCards();
-      });
+    function switchCategory(cat) {
+      currentCategory = cat;
+      const subCaption = document.getElementById('portfolio-sub-caption');
+      const badge = document.getElementById('active-category-badge');
+      const bottomBar = document.getElementById('portfolio-bottom-bar');
+      const pdfContainer = document.getElementById('extended-pdf-container');
+
+      if (subCaption && categoryCaptions[cat]) {
+        subCaption.innerText = categoryCaptions[cat];
+      }
+
+      if (badge && categoryBadges[cat]) {
+        badge.innerText = categoryBadges[cat];
+      }
+
+      if (cat === 'extended-pdf') {
+        stageContainer.style.display = 'none';
+        if (bottomBar) bottomBar.style.display = 'none';
+        if (pdfContainer) pdfContainer.style.display = 'flex';
+        stopAutoSlide();
+        return;
+      }
+
+      // Show 3D stage
+      stageContainer.style.display = 'flex';
+      if (bottomBar) bottomBar.style.display = 'flex';
+      if (pdfContainer) pdfContainer.style.display = 'none';
+
+      if (PORTFOLIO_SECTIONS[cat] && PORTFOLIO_SECTIONS[cat].items) {
+        currentItems = PORTFOLIO_SECTIONS[cat].items;
+      } else {
+        currentItems = PORTFOLIO;
+      }
+
+      currentIndex = 0;
+      renderCards();
+      updateDots();
+      updateCounter();
+      startAutoSlide();
     }
-  }
 
-  function renderAllPortfolioSections() {
-    const sectionKeys = ['logo-brand', 'apparel-packaging', 'web-ui-nft', 'print-media', 'digital-art'];
+    // Render Cards in DOM (Clean Pure Images with No Text Overlays)
+    function renderCards() {
+      cardsWrap.innerHTML = '';
+      if (!currentItems || currentItems.length === 0) return;
 
-    sectionKeys.forEach(function (key) {
-      const gridEl = document.getElementById('grid-' + key);
-      const sectionData = PORTFOLIO_SECTIONS[key];
-
-      if (!gridEl || !sectionData || !sectionData.items) return;
-
-      gridEl.innerHTML = '';
-
-      sectionData.items.forEach(function (item) {
+      currentItems.forEach(function (item, index) {
         const card = document.createElement('div');
-        card.className = 'gallery-item-card';
-        card.setAttribute('data-title', item.title.toLowerCase());
+        card.className = 'portfolio-flow-card';
+        card.setAttribute('data-index', index);
         card.setAttribute('data-id', item.id);
 
-        card.innerHTML =
-          '<img src="' +
-          item.imageUrl +
-          '" alt="' +
-          item.title +
-          '" loading="lazy" />';
+        // Pure clean image — No text overlays or gradients on the card
+        card.innerHTML = '<img src="' + item.imageUrl + '" alt="' + item.title + '" loading="lazy" />';
 
-        // Click to Open Fullscreen Lightbox
-        card.addEventListener('click', function () {
-          openImageLightbox(item.imageUrl, item.title, sectionData.title);
+        // Hover Effect
+        card.addEventListener('mouseenter', function () {
+          isHovering = true;
+          cardsWrap.classList.add('has-hover');
         });
 
-        gridEl.appendChild(card);
+        card.addEventListener('mouseleave', function () {
+          isHovering = false;
+          cardsWrap.classList.remove('has-hover');
+        });
+
+        // Click to center or open enlarged fullscreen
+        card.addEventListener('click', function () {
+          if (currentIndex === index) {
+            openImageLightbox(item.imageUrl);
+          } else {
+            currentIndex = index;
+            updateCardTransforms();
+            updateDots();
+            updateCounter();
+          }
+        });
+
+        cardsWrap.appendChild(card);
       });
-    });
-  }
 
-  function filterAllPortfolioCards() {
-    const query = state.portfolioSearch;
-    const cards = document.querySelectorAll('.gallery-item-card');
+      updateCardTransforms();
+    }
 
-    cards.forEach(function (card) {
-      const title = card.getAttribute('data-title') || '';
-      if (!query || title.indexOf(query) !== -1) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
+    // Update 3D Transformations with Breathing Parallax
+    function updateCardTransforms() {
+      const cards = cardsWrap.querySelectorAll('.portfolio-flow-card');
+      const total = currentItems.length;
+      if (total === 0) return;
+
+      const isMobile = window.innerWidth <= 640;
+      const isTablet = window.innerWidth <= 960 && !isMobile;
+      // Spacing between cards: adjust here for tighter/wider separation on mobile and desktop
+      const spacing = isMobile ? 130 : isTablet ? 200 : 270;
+
+      cards.forEach(function (card, index) {
+        // Calculate signed shortest offset in circular loop
+        let offset = index - currentIndex;
+        while (offset > total / 2) offset -= total;
+        while (offset < -total / 2) offset += total;
+
+        const absOffset = Math.abs(offset);
+        const sign = offset < 0 ? -1 : 1;
+
+        if (absOffset > 3.5) {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.style.transform = 'translate(-50%, -50%) translate3d(' + (sign * 700) + 'px, 0, -450px) scale(0.3)';
+          card.style.zIndex = '0';
+          return;
+        }
+
+        // Stepped size and opacity curve
+        let scale = 1.0;
+        let opacity = 1.0;
+        let brightness = 1.0;
+        let zIndex = 50;
+        let rotY = 0;
+        let transZ = 0;
+        let transX = 0;
+        let transY = 0;
+
+        // Breathing float calculation
+        const floatY = Math.sin(breathingPhase + index * 0.7) * (absOffset === 0 ? 5 : 3.5);
+
+        if (absOffset === 0) {
+          // Center Card — Largest, sharpest, upfront
+          scale = isMobile ? 1.02 : 1.08;
+          opacity = 1.0;
+          brightness = 1.05;
+          zIndex = 50;
+          rotY = 0;
+          transZ = 50;
+          transX = 0;
+          transY = floatY;
+          card.style.borderColor = 'rgba(245, 158, 11, 0.6)';
+        } else if (absOffset <= 1.2) {
+          // Direct Adjacent Cards (Left and Right)
+          scale = isMobile ? 0.84 : 0.88;
+          opacity = 0.88;
+          brightness = 0.82;
+          zIndex = 40;
+          rotY = sign * -14;
+          transZ = -60;
+          transX = sign * spacing;
+          transY = floatY;
+          card.style.borderColor = 'rgba(255, 255, 255, 0.16)';
+        } else if (absOffset <= 2.2) {
+          // Tier 2 Cards
+          scale = isMobile ? 0.70 : 0.72;
+          opacity = 0.60;
+          brightness = 0.60;
+          zIndex = 30;
+          rotY = sign * -24;
+          transZ = -140;
+          transX = sign * (spacing * 1.8);
+          transY = floatY;
+          card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        } else {
+          // Outer Edge Cards
+          scale = isMobile ? 0.55 : 0.56;
+          opacity = 0.32;
+          brightness = 0.40;
+          zIndex = 20;
+          rotY = sign * -32;
+          transZ = -220;
+          transX = sign * (spacing * 2.45);
+          transY = floatY;
+          card.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+        }
+
+        card.style.opacity = opacity.toString();
+        card.style.zIndex = zIndex.toString();
+        card.style.filter = 'brightness(' + brightness + ')';
+        card.style.pointerEvents = 'auto';
+        card.style.transform = 'translate(-50%, -50%) translate3d(' + transX + 'px, ' + transY + 'px, ' + transZ + 'px) rotateY(' + rotY + 'deg) scale(' + scale + ')';
+      });
+    }
+
+    // Gentle Real-time Harmonic Breathing Parallax Loop
+    function startBreathingLoop() {
+      function loop() {
+        breathingPhase += 0.024;
+        updateCardTransforms();
+        animFrameId = requestAnimationFrame(loop);
+      }
+      if (!animFrameId) {
+        animFrameId = requestAnimationFrame(loop);
+      }
+    }
+
+    // Auto-advance Carousel (Speed up display to ~3.2s)
+    function startAutoSlide() {
+      stopAutoSlide();
+      autoSlideInterval = setInterval(function () {
+        if (!isHovering && currentItems.length > 1) {
+          currentIndex = (currentIndex + 1) % currentItems.length;
+          updateDots();
+          updateCounter();
+        }
+      }, 1000); // Snappy, engaging image pace
+    }
+
+    function stopAutoSlide() {
+      if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = null;
+      }
+    }
+
+    // Prev / Next Handlers
+    const prevBtn = document.getElementById('portfolio-prev-btn');
+    const nextBtn = document.getElementById('portfolio-next-btn');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
+        updateDots();
+        updateCounter();
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        currentIndex = (currentIndex + 1) % currentItems.length;
+        updateDots();
+        updateCounter();
+      });
+    }
+
+    // Keyboard Arrow Navigation
+    window.addEventListener('keydown', function (e) {
+      if (currentCategory === 'extended-pdf') return;
+      if (e.key === 'ArrowLeft') {
+        currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
+        updateDots();
+        updateCounter();
+      } else if (e.key === 'ArrowRight') {
+        currentIndex = (currentIndex + 1) % currentItems.length;
+        updateDots();
+        updateCounter();
       }
     });
+
+    // Touch Swipe Support for Mobile & Tablet
+    let touchStartX = 0;
+    stageContainer.addEventListener('touchstart', function (e) {
+      if (e.touches && e.touches[0]) {
+        touchStartX = e.touches[0].clientX;
+      }
+    }, { passive: true });
+
+    stageContainer.addEventListener('touchend', function (e) {
+      if (e.changedTouches && e.changedTouches[0]) {
+        const touchEndX = e.changedTouches[0].clientX;
+        const diffX = touchEndX - touchStartX;
+        if (diffX > 40) {
+          currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
+          updateDots();
+          updateCounter();
+        } else if (diffX < -40) {
+          currentIndex = (currentIndex + 1) % currentItems.length;
+          updateDots();
+          updateCounter();
+        }
+      }
+    }, { passive: true });
+
+    // Update Dots Navigation Bar
+    function updateDots() {
+      const dotsBar = document.getElementById('portfolio-dots-bar');
+      if (!dotsBar || !currentItems) return;
+
+      dotsBar.innerHTML = '';
+      const maxDots = Math.min(currentItems.length, 12);
+
+      for (let i = 0; i < maxDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'portfolio-dot' + (i === currentIndex % maxDots ? ' active' : '');
+        dot.addEventListener('click', function () {
+          currentIndex = i;
+          updateDots();
+          updateCounter();
+        });
+        dotsBar.appendChild(dot);
+      }
+    }
+
+    // Update Counter & Active Title
+    function updateCounter() {
+      const curIndexEl = document.getElementById('portfolio-current-index');
+      const totalCountEl = document.getElementById('portfolio-total-count');
+      const activeTitleEl = document.getElementById('active-item-title');
+
+      if (curIndexEl) {
+        const num = (currentIndex + 1);
+        curIndexEl.innerText = num < 10 ? '0' + num : num;
+      }
+
+      if (totalCountEl) {
+        const tot = currentItems.length;
+        totalCountEl.innerText = tot < 10 ? '0' + tot : tot;
+      }
+
+      if (activeTitleEl && currentItems[currentIndex]) {
+        activeTitleEl.innerText = currentItems[currentIndex].title;
+        activeTitleEl.style.display = 'inline-block';
+      }
+    }
+
+    // Window Resize Handling
+    window.addEventListener('resize', function () {
+      updateCardTransforms();
+    });
+
+    // Start everything
+    renderCards();
+    updateDots();
+    updateCounter();
+    startBreathingLoop();
+    startAutoSlide();
   }
 
-  // IMAGE LIGHTBOX MODAL
-  function openImageLightbox(imgUrl, title, category) {
+  // IMAGE LIGHTBOX MODAL (PURE ENLARGED IMAGE + BACK BUTTON)
+  function openImageLightbox(imgUrl) {
     const modal = document.getElementById('image-lightbox-modal');
     const modalImg = document.getElementById('lightbox-img');
-    const modalCap = document.getElementById('lightbox-caption');
 
     if (!modal || !modalImg) return;
 
     modalImg.src = imgUrl;
-    if (modalCap) {
-      modalCap.innerText = (category ? category + ' • ' : '') + title;
-    }
-
     modal.classList.add('active');
   }
 
@@ -591,6 +858,28 @@
       modal.classList.remove('active');
     }
   }
+
+  // Bind Lightbox Close Button & Backdrop Click
+  const lightboxModal = document.getElementById('image-lightbox-modal');
+  const lightboxCloseBtn = document.getElementById('lightbox-close-btn');
+
+  if (lightboxCloseBtn) {
+    lightboxCloseBtn.addEventListener('click', closeImageLightbox);
+  }
+
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', function (e) {
+      if (e.target === lightboxModal) {
+        closeImageLightbox();
+      }
+    });
+  }
+
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeImageLightbox();
+    }
+  });
 
   // 7. VIBE BUILDS PAGE GRID
   function initVibeBuildsGrid() {
