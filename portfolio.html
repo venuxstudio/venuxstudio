@@ -66,151 +66,145 @@
     </header>
 
     <!-- Main Portfolio Content -->
-    <main style="position: relative; z-index: 10; min-height: 100vh; padding: 110px 20px 90px; max-width: 1280px; margin: 0 auto;">
-      <!-- Title & Subtitle -->
-      <div style="margin-bottom: 28px;">
-        <div style="display: flex; align-items: center; gap: 8px; color: var(--gold-primary); font-family: var(--font-space); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">
-          <span>✨</span>
-          <span>SELECTED WORKS</span>
-        </div>
-        <h1 style="font-family: var(--font-syne); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 12px;">
-          PORTFOLIO
-        </h1>
-        <p style="font-family: var(--font-space); font-size: 13px; color: var(--text-silver); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 300;">
-          Curated Brand Systems • Apparel Collections • Generative Visuals
-        </p>
-      </div>
-
-      <!-- Top Sticky Floating Category Filter Bar & Search (Persistent Hover on Scroll) -->
-      <div class="sticky-filter-panel">
-        <div class="sticky-filter-pills-wrap">
-          <button class="portfolio-filter-btn" data-target="all" style="padding: 6px 13px; border-radius: 9999px; background: var(--gold-primary); border: none; color: #000; font-family: var(--font-space); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">ALL</button>
-          <button class="portfolio-filter-btn" data-target="logo-brand" style="padding: 6px 13px; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-silver); font-family: var(--font-space); font-size: 10px; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">Logo & Brand System</button>
-          <button class="portfolio-filter-btn" data-target="apparel-packaging" style="padding: 6px 13px; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-silver); font-family: var(--font-space); font-size: 10px; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">Apparel & Packaging</button>
-          <button class="portfolio-filter-btn" data-target="web-ui-nft" style="padding: 6px 13px; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-silver); font-family: var(--font-space); font-size: 10px; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">Web UI & NFT</button>
-          <button class="portfolio-filter-btn" data-target="print-media" style="padding: 6px 13px; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-silver); font-family: var(--font-space); font-size: 10px; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">Print Media</button>
-          <button class="portfolio-filter-btn" data-target="digital-art" style="padding: 6px 13px; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-silver); font-family: var(--font-space); font-size: 10px; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease;">Digital Art</button>
-        </div>
-
-        <div class="sticky-filter-search-wrap" style="display: flex; align-items: center; gap: 8px;">
-          <input id="portfolio-gallery-search" type="text" placeholder="Filter images..." style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 9999px; font-family: var(--font-space); font-size: 11px; color: #fff; outline: none; min-width: 170px;" />
-        </div>
-      </div>
-
-      <!-- ================= 5 SCROLLING GALLERY SECTIONS ================= -->
-      <div id="portfolio-sections-root" class="portfolio-gallery-container">
+    <main style="position: relative; z-index: 10; min-height: calc(100vh - 10px); height: calc(100vh - 10px); padding: 74px 20px 16px; max-width: 1560px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between;">
+      
+      <div class="portfolio-hero-wrap">
         
-        <!-- SECTION 1: LOGO & BRAND SYSTEM (16 Containers) -->
-        <section id="section-logo-brand" class="gallery-section-block">
-          <div class="gallery-section-header">
-            <div class="gallery-section-title-wrap">
-              <span class="gallery-section-num">01 / BRANDING</span>
-              <h2 class="gallery-section-title">Logo & Brand System</h2>
-            </div>
-            <span class="gallery-section-badge">16 Works</span>
+        <!-- Top Bar: Left Title & Right Category Filter Stack -->
+        <div class="portfolio-top-bar">
+          <!-- Left Main Heading (Exact Match to Reference) -->
+          <div class="portfolio-title-group">
+            <h1 class="portfolio-main-title">PORTFOLIO</h1>
+            <p id="portfolio-sub-caption" class="portfolio-sub-caption">
+              CURATED BRAND SYSTEMS • APPAREL COLLECTIONS • GENERATIVE VISUALS
+            </p>
           </div>
-          <div id="grid-logo-brand" class="gallery-grid"></div>
-        </section>
 
-        <!-- Dotted Section Divider -->
-        <div class="section-divider">
-          <div class="section-divider-diamond"></div>
+          <!-- Right-Side Vertical Category Filters (Exact Match to Reference) -->
+          <div class="portfolio-side-filters" id="portfolio-side-filters">
+            <button class="portfolio-filter-item active" data-cat="logo-brand">
+              <span class="portfolio-filter-indicator"></span>
+              <span>LOGO & BRAND SYSTEM</span>
+            </button>
+            <button class="portfolio-filter-item" data-cat="apparel-packaging">
+              <span class="portfolio-filter-indicator"></span>
+              <span>APPAREL & PACKAGING</span>
+            </button>
+            <button class="portfolio-filter-item" data-cat="web-ui-nft">
+              <span class="portfolio-filter-indicator"></span>
+              <span>WEB UI & NFT</span>
+            </button>
+            <button class="portfolio-filter-item" data-cat="print-media">
+              <span class="portfolio-filter-indicator"></span>
+              <span>PRINT MEDIA</span>
+            </button>
+            <button class="portfolio-filter-item" data-cat="digital-art">
+              <span class="portfolio-filter-indicator"></span>
+              <span>DIGITAL ART</span>
+            </button>
+            <button class="portfolio-filter-item" data-cat="extended-pdf">
+              <span class="portfolio-filter-indicator"></span>
+              <span>EXTENDED PDF</span>
+            </button>
+          </div>
         </div>
 
-        <!-- SECTION 2: APPAREL & PACKAGING (12 Containers) -->
-        <section id="section-apparel-packaging" class="gallery-section-block">
-          <div class="gallery-section-header">
-            <div class="gallery-section-title-wrap">
-              <span class="gallery-section-num">02 / PHYSICAL GOODS</span>
-              <h2 class="gallery-section-title">Apparel & Packaging</h2>
-            </div>
-            <span class="gallery-section-badge">12 Works</span>
-          </div>
-          <div id="grid-apparel-packaging" class="gallery-grid"></div>
-        </section>
+        <!-- ================= 3D STEPPED COVERFLOW STAGE ================= -->
+        <div id="portfolio-stage-container" class="portfolio-stage-container">
+          <!-- Left Nav Button -->
+          <button id="portfolio-prev-btn" class="portfolio-nav-arrow prev" aria-label="Previous artwork">
+            <span style="font-size: 18px; margin-right: 2px;">❮</span>
+          </button>
 
-        <!-- Dotted Section Divider -->
-        <div class="section-divider">
-          <div class="section-divider-diamond"></div>
+          <!-- 4:5 Stepped Floating Cards -->
+          <div id="portfolio-cards-wrap" class="portfolio-cards-wrap"></div>
+
+          <!-- Right Nav Button -->
+          <button id="portfolio-next-btn" class="portfolio-nav-arrow next" aria-label="Next artwork">
+            <span style="font-size: 18px; margin-left: 2px;">❯</span>
+          </button>
         </div>
 
-        <!-- SECTION 3: WEB UI & NFT (8 Containers) -->
-        <section id="section-web-ui-nft" class="gallery-section-block">
-          <div class="gallery-section-header">
-            <div class="gallery-section-title-wrap">
-              <span class="gallery-section-num">03 / DIGITAL ECOSYSTEMS</span>
-              <h2 class="gallery-section-title">Web UI & NFT</h2>
-            </div>
-            <span class="gallery-section-badge">8 Works</span>
-          </div>
-          <div id="grid-web-ui-nft" class="gallery-grid"></div>
-        </section>
+        <!-- ================= EXTENDED PDF SPECIAL VIEW ================= -->
+        <div id="extended-pdf-container" class="extended-pdf-container" style="display: none;">
+          <div class="extended-pdf-card">
+            <div>
+              <div style="display: inline-flex; align-items: center; gap: 8px; color: var(--gold-primary); font-family: var(--font-space); font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 12px; font-weight: 600;">
+                <span>📄</span>
+                <span>OFFICIAL STUDIO ARCHIVE</span>
+              </div>
+              <h2 style="font-family: var(--font-syne); font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; color: #ffffff; margin-bottom: 14px; line-height: 1.1;">
+                Complete Client Decks & Vector Archives
+              </h2>
+              <p style="font-family: var(--font-space); font-size: 12px; color: var(--text-silver); font-weight: 300; line-height: 1.7; margin-bottom: 24px; max-width: 520px;">
+                Download our comprehensive PDF portfolio featuring 40+ client identity decks, apparel tech packs, brand guidelines manuals, vector lockups, and high-resolution print deliverables.
+              </p>
 
-        <!-- Dotted Section Divider -->
-        <div class="section-divider">
-          <div class="section-divider-diamond"></div>
+              <!-- Specs Grid -->
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; max-width: 480px;">
+                <div style="padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                  <div style="font-family: var(--font-syne); font-size: 16px; font-weight: 700; color: var(--gold-primary);">40+</div>
+                  <div style="font-family: var(--font-space); font-size: 9px; color: var(--text-silver); letter-spacing: 0.1em; text-transform: uppercase;">Curated Case Studies</div>
+                </div>
+                <div style="padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                  <div style="font-family: var(--font-syne); font-size: 16px; font-weight: 700; color: var(--gold-primary);">4K High-Res</div>
+                  <div style="font-family: var(--font-space); font-size: 9px; color: var(--text-silver); letter-spacing: 0.1em; text-transform: uppercase;">Vector & Print Specs</div>
+                </div>
+              </div>
+
+              <!-- Download Action -->
+              <a id="pdf-portfolio-download-btn" href="https://drive.google.com/file/d/1example-venux-studio-portfolio/view?usp=sharing" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 9999px; background: var(--gold-primary); color: #000000; font-family: var(--font-space); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; text-decoration: none; box-shadow: 0 0 25px rgba(245,158,11,0.35); transition: transform 0.2s ease;">
+                <span>DOWNLOAD EXTENDED PDF</span>
+                <span>↗</span>
+              </a>
+            </div>
+
+            <!-- PDF Mockup Visual -->
+            <div class="pdf-preview-mockup">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop" alt="Venux Studio Extended PDF Deck Mockup" />
+              <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);"></div>
+              <div style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                <span style="display: inline-block; padding: 3px 8px; border-radius: 9999px; background: rgba(0,0,0,0.7); border: 1px solid rgba(245,158,11,0.4); font-family: var(--font-space); font-size: 9px; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">
+                  PDF CATALOGUE
+                </span>
+                <p style="font-family: var(--font-syne); font-size: 14px; font-weight: 700; color: #ffffff;">VENUX STUDIO DECK 2026</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- SECTION 4: PRINT MEDIA (12 Containers) -->
-        <section id="section-print-media" class="gallery-section-block">
-          <div class="gallery-section-header">
-            <div class="gallery-section-title-wrap">
-              <span class="gallery-section-num">04 / EDITORIAL & SILK SCREEN</span>
-              <h2 class="gallery-section-title">Print Media</h2>
-            </div>
-            <span class="gallery-section-badge">12 Works</span>
+        <!-- Bottom Controls & Active Meta Bar -->
+        <div id="portfolio-bottom-bar" class="portfolio-bottom-bar">
+          <div class="portfolio-active-meta">
+            <span id="active-category-badge" class="portfolio-category-badge">LOGO & BRAND SYSTEM</span>
+            <span id="active-item-title" style="font-family: var(--font-syne); font-size: 12px; font-weight: 700; color: #ffffff; display: none;"></span>
           </div>
-          <div id="grid-print-media" class="gallery-grid"></div>
-        </section>
 
-        <!-- Dotted Section Divider -->
-        <div class="section-divider">
-          <div class="section-divider-diamond"></div>
+          <!-- Navigation Dots -->
+          <div id="portfolio-dots-bar" class="portfolio-dots-bar"></div>
+
+          <!-- Counter Indicator -->
+          <div style="font-family: var(--font-space); font-size: 10px; color: var(--text-silver); letter-spacing: 0.12em; text-transform: uppercase;">
+            <span id="portfolio-current-index" style="color: var(--gold-primary); font-weight: 700;">01</span>
+            <span style="color: rgba(255,255,255,0.2);"> / </span>
+            <span id="portfolio-total-count">16</span>
+          </div>
         </div>
 
-        <!-- SECTION 5: DIGITAL ART (12 Containers) -->
-        <section id="section-digital-art" class="gallery-section-block">
-          <div class="gallery-section-header">
-            <div class="gallery-section-title-wrap">
-              <span class="gallery-section-num">05 / GENERATIVE & SHADERS</span>
-              <h2 class="gallery-section-title">Digital Art</h2>
-            </div>
-            <span class="gallery-section-badge">12 Works</span>
-          </div>
-          <div id="grid-digital-art" class="gallery-grid"></div>
-        </section>
-
-      </div>
-
-      <!-- ================= EXTENDED ARCHIVE & PDF SECTION ================= -->
-      <div class="glass-panel" style="margin-top: 60px; border-radius: 24px; padding: 36px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid rgba(245,158,11,0.25);">
-        <div>
-          <span style="font-family: var(--font-space); font-size: 10px; color: var(--gold-primary); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;">
-            📄 EXTENDED ARCHIVE & PDF
-          </span>
-          <h3 style="font-family: var(--font-syne); font-size: 22px; font-weight: 700; margin: 8px 0; color: #ffffff;">
-            Looking for Complete Client Decks & Vector Archives?
-          </h3>
-          <p style="font-family: var(--font-space); font-size: 12px; color: var(--text-silver); font-weight: 300; max-width: 580px; line-height: 1.6;">
-            Download our extended comprehensive PDF portfolio featuring 40+ client identity decks, packaging dielines, streetwear tech packs, and typography vector manuals.
-          </p>
-        </div>
-
-        <a id="pdf-portfolio-btn" href="https://drive.google.com/file/d/1tHbEPQrKnWGHu5z4K-dpq1kk4KrGbbqX/view?usp=sharing" target="_blank" rel="noopener noreferrer" style="text-decoration: none; padding: 14px 28px; border-radius: 9999px; background: var(--gold-primary); color: #000000; font-family: var(--font-space); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 20px rgba(245,158,11,0.35); transition: transform 0.2s ease;">
-          <span>VIEW ALL PROJECTS (PDF)</span>
-          <span>↗</span>
-        </a>
       </div>
     </main>
 
-    <!-- ================= IMAGE LIGHTBOX MODAL ================= -->
+    <!-- ================= IMAGE LIGHTBOX MODAL (PURE ENLARGED IMAGE + BACK BUTTON ONLY) ================= -->
     <div id="image-lightbox-modal" class="modal-overlay" style="z-index: 120;">
-      <div style="position: relative; max-width: 960px; width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <button id="lightbox-close-btn" style="position: absolute; top: -45px; right: 0; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
-        <div style="border-radius: 18px; overflow: hidden; border: 1px solid rgba(245,158,11,0.4); box-shadow: 0 25px 60px rgba(0,0,0,0.95); background: #000; max-height: 80vh; width: 100%; display: flex; align-items: center; justify-content: center;">
-          <img id="lightbox-img" src="" alt="Portfolio Showcase Fullscreen" style="max-width: 100%; max-height: 80vh; object-fit: contain;" />
+      <div style="position: relative; max-width: 92vw; max-height: 90vh; width: fit-content; display: flex; flex-direction: column; align-items: center;">
+        <!-- Top Back Button -->
+        <button id="lightbox-close-btn" style="position: absolute; top: -48px; right: 0; background: rgba(10,12,18,0.85); border: 1px solid rgba(255,255,255,0.22); color: #fff; font-family: var(--font-space); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 16px; border-radius: 9999px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 8px 25px rgba(0,0,0,0.8); transition: all 0.2s ease;">
+          <span style="font-size: 14px;">←</span> BACK
+        </button>
+        <!-- Pure Enlarged Image Container -->
+        <div style="border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 30px 80px rgba(0,0,0,0.98); background: #000; max-height: 84vh; max-width: 90vw; display: flex; align-items: center; justify-content: center;">
+          <img id="lightbox-img" src="" alt="Venux Studio Work" style="max-width: 90vw; max-height: 84vh; width: auto; height: auto; object-fit: contain; display: block;" />
         </div>
-        <p id="lightbox-caption" style="margin-top: 14px; font-family: var(--font-space); font-size: 12px; color: var(--gold-primary); letter-spacing: 0.15em; text-transform: uppercase;"></p>
       </div>
     </div>
 
