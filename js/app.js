@@ -471,7 +471,7 @@
     }
   }
 
-  // 6. PORTFOLIO PAGE 3D STEPPED COVERFLOW ENGINE & CATEGORY SYSTEM
+  // 6. PORTFOLIO PAGE CONTINUOUS CURVED ORBIT ENGINE & CATEGORY SYSTEM
   function initPortfolioGrid() {
     const stageContainer = document.getElementById('portfolio-stage-container');
     const cardsWrap = document.getElementById('portfolio-cards-wrap');
@@ -479,17 +479,22 @@
 
     let currentCategory = 'logo-brand';
     let currentItems = (PORTFOLIO_SECTIONS['logo-brand'] && PORTFOLIO_SECTIONS['logo-brand'].items) ? PORTFOLIO_SECTIONS['logo-brand'].items : PORTFOLIO;
-    let currentIndex = 0;
-    let autoSlideInterval = null;
+    let scrollPos = 0;
+    let targetScrollPos = 0;
+    let autoSpeed = 0.0035; // Continuous smooth gliding speed
     let isHovering = false;
-    let breathingPhase = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragLastX = 0;
+    let dragVelocity = 0;
+    let hasDraggedSignificantly = false;
     let animFrameId = null;
 
     // Subtitles dictionary
     const categoryCaptions = {
       'logo-brand': '16 ICONIC BRAND MARKS • VECTORS & VISUAL IDENTITIES',
       'apparel-packaging': '12 LUXURY BOX SETS • STREETWEAR SPECS & COSMETICS',
-      'web-ui-nft': '8 DIGITAL ECOSYSTEMS • WEB3 SYNERGIES & DARK INTERFACES',
+      'web-ui-nft': '12 DIGITAL ECOSYSTEMS • WEB3 SYNERGIES & DARK INTERFACES',
       'print-media': '12 EDITORIAL SPREADS • SILK SCREENS & POSTERS',
       'digital-art': '12 GENERATIVE AI COMPOSITIONS • 3D RENDERS & SHADERS',
       'extended-pdf': 'OFFICIAL STUDIO ARCHIVE • COMPLETE CLIENT DECKS & MANUALS'
@@ -505,7 +510,7 @@
     };
 
     // Initialize Category Filters
-    const filterButtons = document.querySelectorAll('.portfolio-filter-item');
+    const filterButtons = document.querySelectorAll('.portfolio-filter-pill');
     filterButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
         const cat = btn.getAttribute('data-cat');
@@ -522,7 +527,6 @@
       currentCategory = cat;
       const subCaption = document.getElementById('portfolio-sub-caption');
       const badge = document.getElementById('active-category-badge');
-      const bottomBar = document.getElementById('portfolio-bottom-bar');
       const pdfContainer = document.getElementById('extended-pdf-container');
 
       if (subCaption && categoryCaptions[cat]) {
@@ -535,15 +539,12 @@
 
       if (cat === 'extended-pdf') {
         stageContainer.style.display = 'none';
-        if (bottomBar) bottomBar.style.display = 'none';
         if (pdfContainer) pdfContainer.style.display = 'flex';
-        stopAutoSlide();
         return;
       }
 
-      // Show 3D stage
+      // Show Orbit stage
       stageContainer.style.display = 'flex';
-      if (bottomBar) bottomBar.style.display = 'flex';
       if (pdfContainer) pdfContainer.style.display = 'none';
 
       if (PORTFOLIO_SECTIONS[cat] && PORTFOLIO_SECTIONS[cat].items) {
@@ -552,11 +553,10 @@
         currentItems = PORTFOLIO;
       }
 
-      currentIndex = 0;
+      scrollPos = 0;
+      targetScrollPos = 0;
       renderCards();
-      updateDots();
       updateCounter();
-      startAutoSlide();
     }
 
     // Render Cards in DOM (Clean Pure Images with No Text Overlays)
@@ -586,13 +586,15 @@
 
         // Click to center or open enlarged fullscreen
         card.addEventListener('click', function () {
-          if (currentIndex === index) {
+          if (hasDraggedSignificantly) return;
+          const total = currentItems.length;
+          let diff = ((index - scrollPos) % total + total) % total;
+          if (diff > total / 2) diff -= total;
+
+          if (Math.abs(diff) < 0.28) {
             openImageLightbox(item.imageUrl);
           } else {
-            currentIndex = index;
-            updateCardTransforms();
-            updateDots();
-            updateCounter();
+            targetScrollPos += diff;
           }
         });
 
@@ -602,7 +604,7 @@
       updateCardTransforms();
     }
 
-    // Update 3D Transformations with Breathing Parallax
+    // Update Continuous Curved Orbit Arch Transformations with 3D Parallax & Edge-Vanishing Rotation
     function updateCardTransforms() {
       const cards = cardsWrap.querySelectorAll('.portfolio-flow-card');
       const total = currentItems.length;
@@ -610,141 +612,158 @@
 
       const isMobile = window.innerWidth <= 640;
       const isTablet = window.innerWidth <= 960 && !isMobile;
-      // Spacing between cards: adjust here for tighter/wider separation on mobile and desktop
-      const spacing = isMobile ? 130 : isTablet ? 200 : 270;
+
+      // Arc radius R and Angular Step between cards
+      const R = isMobile ? 420 : isTablet ? 680 : 920;
+      const stepDeg = isMobile ? 22 : isTablet ? 18 : 14.5;
+      const stepRad = stepDeg * (Math.PI / 180);
 
       cards.forEach(function (card, index) {
-        // Calculate signed shortest offset in circular loop
-        let offset = index - currentIndex;
-        while (offset > total / 2) offset -= total;
-        while (offset < -total / 2) offset += total;
+        // Calculate signed shortest offset in continuous circular loop
+        let diff = ((index - scrollPos) % total + total) % total;
+        if (diff > total / 2) diff -= total;
 
-        const absOffset = Math.abs(offset);
-        const sign = offset < 0 ? -1 : 1;
+        const theta = diff * stepRad;
+        const degZ = diff * stepDeg;
+        const cosT = Math.cos(theta);
+        const sinT = Math.sin(theta);
 
-        if (absOffset > 3.5) {
+        // If card is far off to the sides/back of the circle, hide it cleanly
+        if (cosT < 0.1) {
           card.style.opacity = '0';
           card.style.pointerEvents = 'none';
-          card.style.transform = 'translate(-50%, -50%) translate3d(' + (sign * 700) + 'px, 0, -450px) scale(0.3)';
+          card.style.transform = 'translate(-50%, -50%) translate3d(0px, 600px, -450px) scale(0.15)';
           card.style.zIndex = '0';
           return;
         }
 
-        // Stepped size and opacity curve
-        let scale = 1.0;
-        let opacity = 1.0;
-        let brightness = 1.0;
-        let zIndex = 50;
-        let rotY = 0;
-        let transZ = 0;
-        let transX = 0;
-        let transY = 0;
+        // Parallax depth calculation:
+        // Center card is big & pushed forward; as it moves down the arch, it drops in Z and shrinks
+        const transX = R * sinT;
+        const transY = R * (1 - cosT); // Apex at 0, drops smoothly downwards on left & right
+        const transZ = (cosT - 1) * 260 + (cosT > 0.95 ? 40 : 0); // Prominent front-to-back depth
 
-        // Breathing float calculation
-        const floatY = Math.sin(breathingPhase + index * 0.7) * (absOffset === 0 ? 5 : 3.5);
+        // Front card is much larger (up to 1.15x), smoothly scaling down to ~0.35x as it drops
+        const scale = Math.max(0.32, Math.pow(cosT, 1.35) * 1.12);
 
-        if (absOffset === 0) {
-          // Center Card — Largest, sharpest, upfront
-          scale = isMobile ? 1.02 : 1.08;
-          opacity = 1.0;
-          brightness = 1.05;
-          zIndex = 50;
-          rotY = 0;
-          transZ = 50;
-          transX = 0;
-          transY = floatY;
-          card.style.borderColor = 'rgba(245, 158, 11, 0.6)';
-        } else if (absOffset <= 1.2) {
-          // Direct Adjacent Cards (Left and Right)
-          scale = isMobile ? 0.84 : 0.88;
-          opacity = 0.88;
-          brightness = 0.82;
-          zIndex = 40;
-          rotY = sign * -14;
-          transZ = -60;
-          transX = sign * spacing;
-          transY = floatY;
-          card.style.borderColor = 'rgba(255, 255, 255, 0.16)';
-        } else if (absOffset <= 2.2) {
-          // Tier 2 Cards
-          scale = isMobile ? 0.70 : 0.72;
-          opacity = 0.60;
-          brightness = 0.60;
-          zIndex = 30;
-          rotY = sign * -24;
-          transZ = -140;
-          transX = sign * (spacing * 1.8);
-          transY = floatY;
-          card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        // Parallax Edge Rotation (Yaw):
+        // Cards face forward at the apex (rotY = 0) and smoothly rotate inward on Y-axis
+        // turning edge-on (faint line profile) near the perimeter before dipping out
+        const sign = diff < 0 ? -1 : 1;
+        const normalizedDiff = Math.min(1.0, Math.abs(diff) / 3.2);
+        const rotY = sign * Math.pow(normalizedDiff, 1.25) * -72; // Up to ~72deg edge view
+
+        // Smooth Opacity fade: front card 100%, fading down to 0% at edges
+        const opacity = Math.min(1.0, Math.max(0, Math.pow(cosT, 2.2) * 1.35));
+        const zIndex = Math.round(100 * cosT);
+        const brightness = 0.55 + 0.5 * cosT;
+
+        const isCenter = Math.abs(diff) < 0.35;
+        if (isCenter) {
+          card.style.borderColor = 'rgba(245, 158, 11, 0.7)';
         } else {
-          // Outer Edge Cards
-          scale = isMobile ? 0.55 : 0.56;
-          opacity = 0.32;
-          brightness = 0.40;
-          zIndex = 20;
-          rotY = sign * -32;
-          transZ = -220;
-          transX = sign * (spacing * 2.45);
-          transY = floatY;
-          card.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+          card.style.borderColor = 'rgba(255, 255, 255, ' + (0.04 + 0.14 * cosT) + ')';
         }
 
-        card.style.opacity = opacity.toString();
+        card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = zIndex.toString();
-        card.style.filter = 'brightness(' + brightness + ')';
-        card.style.pointerEvents = 'auto';
-        card.style.transform = 'translate(-50%, -50%) translate3d(' + transX + 'px, ' + transY + 'px, ' + transZ + 'px) rotateY(' + rotY + 'deg) scale(' + scale + ')';
+        card.style.filter = 'brightness(' + brightness.toFixed(2) + ')';
+        card.style.pointerEvents = opacity > 0.15 ? 'auto' : 'none';
+        card.style.transform = 'translate(-50%, -50%) translate3d(' + transX.toFixed(2) + 'px, ' + transY.toFixed(2) + 'px, ' + transZ.toFixed(2) + 'px) rotateZ(' + degZ.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg) scale(' + scale.toFixed(3) + ')';
       });
     }
 
-    // Gentle Real-time Harmonic Breathing Parallax Loop
-    function startBreathingLoop() {
+    // Continuous Ultra-Smooth Animation Loop (60/120fps)
+    function startContinuousOrbitLoop() {
       function loop() {
-        breathingPhase += 0.024;
+        if (!isDragging) {
+          // If hovering, slow glide down by 80%
+          const speed = isHovering ? autoSpeed * 0.2 : autoSpeed;
+          targetScrollPos += speed;
+
+          // Apply velocity inertia if any
+          if (Math.abs(dragVelocity) > 0.0001) {
+            targetScrollPos += dragVelocity;
+            dragVelocity *= 0.92; // Friction damping
+          }
+        }
+
+        // Smooth spring interpolation towards targetScrollPos
+        scrollPos += (targetScrollPos - scrollPos) * 0.14;
+
         updateCardTransforms();
+        updateCounter();
+
         animFrameId = requestAnimationFrame(loop);
       }
+
       if (!animFrameId) {
         animFrameId = requestAnimationFrame(loop);
       }
     }
 
-    // Auto-advance Carousel (Speed up display to ~3.2s)
-    function startAutoSlide() {
-      stopAutoSlide();
-      autoSlideInterval = setInterval(function () {
-        if (!isHovering && currentItems.length > 1) {
-          currentIndex = (currentIndex + 1) % currentItems.length;
-          updateDots();
-          updateCounter();
-        }
-      }, 1000); // Snappy, engaging image pace
+    // Drag / Swipe / Touch Interactive Controls
+    function handlePointerDown(e) {
+      isDragging = true;
+      hasDraggedSignificantly = false;
+      dragStartX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      dragLastX = dragStartX;
+      dragVelocity = 0;
     }
 
-    function stopAutoSlide() {
-      if (autoSlideInterval) {
-        clearInterval(autoSlideInterval);
-        autoSlideInterval = null;
+    function handlePointerMove(e) {
+      if (!isDragging) return;
+      const currentX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const deltaX = currentX - dragLastX;
+
+      if (Math.abs(currentX - dragStartX) > 6) {
+        hasDraggedSignificantly = true;
       }
+
+      const isMobile = window.innerWidth <= 640;
+      const sensitivity = isMobile ? 200 : 340;
+      const scrollDelta = -deltaX / sensitivity;
+
+      targetScrollPos += scrollDelta;
+      scrollPos += scrollDelta;
+      dragVelocity = scrollDelta * 0.7;
+      dragLastX = currentX;
     }
 
-    // Prev / Next Handlers
+    function handlePointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+    }
+
+    stageContainer.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+
+    stageContainer.addEventListener('touchstart', handlePointerDown, { passive: true });
+    window.addEventListener('touchmove', handlePointerMove, { passive: true });
+    window.addEventListener('touchend', handlePointerUp, { passive: true });
+
+    // Mouse Wheel Scroll
+    stageContainer.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.0018;
+      targetScrollPos += delta;
+      dragVelocity = delta * 0.5;
+    }, { passive: false });
+
+    // Prev / Next Nav Buttons
     const prevBtn = document.getElementById('portfolio-prev-btn');
     const nextBtn = document.getElementById('portfolio-next-btn');
 
     if (prevBtn) {
       prevBtn.addEventListener('click', function () {
-        currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
-        updateDots();
-        updateCounter();
+        targetScrollPos = Math.round(targetScrollPos) - 1;
       });
     }
 
     if (nextBtn) {
       nextBtn.addEventListener('click', function () {
-        currentIndex = (currentIndex + 1) % currentItems.length;
-        updateDots();
-        updateCounter();
+        targetScrollPos = Math.round(targetScrollPos) + 1;
       });
     }
 
@@ -752,79 +771,29 @@
     window.addEventListener('keydown', function (e) {
       if (currentCategory === 'extended-pdf') return;
       if (e.key === 'ArrowLeft') {
-        currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
-        updateDots();
-        updateCounter();
+        targetScrollPos = Math.round(targetScrollPos) - 1;
       } else if (e.key === 'ArrowRight') {
-        currentIndex = (currentIndex + 1) % currentItems.length;
-        updateDots();
-        updateCounter();
+        targetScrollPos = Math.round(targetScrollPos) + 1;
       }
     });
 
-    // Touch Swipe Support for Mobile & Tablet
-    let touchStartX = 0;
-    stageContainer.addEventListener('touchstart', function (e) {
-      if (e.touches && e.touches[0]) {
-        touchStartX = e.touches[0].clientX;
-      }
-    }, { passive: true });
-
-    stageContainer.addEventListener('touchend', function (e) {
-      if (e.changedTouches && e.changedTouches[0]) {
-        const touchEndX = e.changedTouches[0].clientX;
-        const diffX = touchEndX - touchStartX;
-        if (diffX > 40) {
-          currentIndex = (currentIndex - 1 + currentItems.length) % currentItems.length;
-          updateDots();
-          updateCounter();
-        } else if (diffX < -40) {
-          currentIndex = (currentIndex + 1) % currentItems.length;
-          updateDots();
-          updateCounter();
-        }
-      }
-    }, { passive: true });
-
-    // Update Dots Navigation Bar
-    function updateDots() {
-      const dotsBar = document.getElementById('portfolio-dots-bar');
-      if (!dotsBar || !currentItems) return;
-
-      dotsBar.innerHTML = '';
-      const maxDots = Math.min(currentItems.length, 12);
-
-      for (let i = 0; i < maxDots; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'portfolio-dot' + (i === currentIndex % maxDots ? ' active' : '');
-        dot.addEventListener('click', function () {
-          currentIndex = i;
-          updateDots();
-          updateCounter();
-        });
-        dotsBar.appendChild(dot);
-      }
-    }
-
-    // Update Counter & Active Title
+    // Update Counter
     function updateCounter() {
       const curIndexEl = document.getElementById('portfolio-current-index');
       const totalCountEl = document.getElementById('portfolio-total-count');
-      const activeTitleEl = document.getElementById('active-item-title');
+
+      const total = currentItems.length;
+      if (total === 0) return;
+
+      const activeIndex = ((Math.round(scrollPos) % total) + total) % total;
 
       if (curIndexEl) {
-        const num = (currentIndex + 1);
+        const num = activeIndex + 1;
         curIndexEl.innerText = num < 10 ? '0' + num : num;
       }
 
       if (totalCountEl) {
-        const tot = currentItems.length;
-        totalCountEl.innerText = tot < 10 ? '0' + tot : tot;
-      }
-
-      if (activeTitleEl && currentItems[currentIndex]) {
-        activeTitleEl.innerText = currentItems[currentIndex].title;
-        activeTitleEl.style.display = 'inline-block';
+        totalCountEl.innerText = total < 10 ? '0' + total : total;
       }
     }
 
@@ -835,10 +804,8 @@
 
     // Start everything
     renderCards();
-    updateDots();
     updateCounter();
-    startBreathingLoop();
-    startAutoSlide();
+    startContinuousOrbitLoop();
   }
 
   // IMAGE LIGHTBOX MODAL (PURE ENLARGED IMAGE + BACK BUTTON)
